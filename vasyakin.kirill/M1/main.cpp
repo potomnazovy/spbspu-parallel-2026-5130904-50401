@@ -17,8 +17,6 @@ int main(int argc, char** argv)
 
   try
   {
-    size_t pos = 0;
-
     threads = vasyakin::parseArgument(argv[1], "threads");
     tries = vasyakin::parseArgument(argv[2], "tries");
 
