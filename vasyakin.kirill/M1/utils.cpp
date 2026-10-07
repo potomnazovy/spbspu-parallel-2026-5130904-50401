@@ -1,7 +1,9 @@
 #include "utils.hpp"
+
 #include <stdexcept>
 #include <utility>
 #include <random>
+#include <thread>
 
 vasyakin::Circle::Circle(double radius, double x, double y) noexcept:
   radius_(radius),
@@ -107,4 +109,56 @@ std::pair< int, int > calc(int tries, int seed,
   }
 
   return std::make_pair(countInOneCircle, countInAllCircles);
+}
+
+std::pair< double, double > area(int threads, int tries, int seed,
+  const std::vector< vasyakin::Circle >& circles, vasyakin::Rectangle rect)
+{
+  if (threads == 0)
+  {
+    throw std::invalid_argument("threads must be positive");
+  }
+
+  int local_tries = tries;
+
+  int chunk = tries / threads;
+  int remainder = tries % threads;
+
+  std::vector< std::pair< int, int > > results(threads);
+
+  std::vector< std::thread > thread_pool;
+  thread_pool.reserve(threads);
+
+  for (int j = 0; j < threads; ++j)
+  {
+    int local_seed = seed + j;
+    local_tries = (j == threads - 1) ? chunk + remainder : chunk;
+
+    thread_pool.emplace_back([&, j, local_tries, local_seed]()
+    {
+      results[j] = vasyakin::calc(local_tries, local_seed,
+        rect.minX, rect.maxX, rect.minY, rect.maxY, circles);
+    });
+  }
+
+  for (size_t i = 0; i < thread_pool.size(); ++i)
+  {
+    thread_pool[i].join();
+  }
+
+  int totalUnionHits = 0;
+  int totalIntersectHits = 0;
+
+  for (size_t i = 0; i < results.size(); ++i)
+  {
+    totalUnionHits += results[i].first;
+    totalIntersectHits += results[i].second;
+  }
+
+  double rectArea = (rect.maxX - rect.minX) * (rect.maxY - rect.minY);
+
+  double areaUnion = static_cast< double >(totalUnionHits) / tries * rectArea;
+  double areaIntersect = static_cast< double >(totalIntersectHits) / tries * rectArea;
+
+  return std::make_pair(areaUnion, areaIntersect);
 }
