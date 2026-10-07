@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <stdexcept>
 
 vasyakin::Circle::Circle(double radius, double x, double y) noexcept:
   radius_(radius),
@@ -47,4 +48,17 @@ vasyakin::Rectangle findRectangleRange(const std::vector< vasyakin::Circle >& ci
   }
 
   return rect;
+}
+
+int parseArgument(const char* arg, const std::string& param)
+{
+  size_t pos = 0;
+  int value = std::stoi(arg, &pos);
+
+  if (pos != std::string(arg).length())
+  {
+    throw std::invalid_argument("Invalid characters in " + param);
+  }
+
+  return value;
 }
