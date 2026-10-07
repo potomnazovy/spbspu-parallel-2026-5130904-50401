@@ -1,5 +1,7 @@
 #include "utils.hpp"
 #include <stdexcept>
+#include <utility>
+#include <random>
 
 vasyakin::Circle::Circle(double radius, double x, double y) noexcept:
   radius_(radius),
@@ -61,4 +63,48 @@ int parseArgument(const char* arg, const std::string& param)
   }
 
   return value;
+}
+
+std::pair< int, int > calc(int tries, int seed,
+  double minX, double maxX, double minY, double maxY, const std::vector< vasyakin::Circle >& circles)
+{
+  int countInOneCircle = 0;
+  int countInAllCircles = 0;
+
+  std::mt19937 engine(seed);
+  std::uniform_real_distribution< double > dist_x(minX, maxX);
+  std::uniform_real_distribution< double > dist_y(minY, maxY);
+
+  for (int i = 0; i < tries; ++i)
+  {
+    double x = dist_x(engine);
+    double y = dist_y(engine);
+
+    bool inAny = false;
+    bool inAll = true;
+
+    for (size_t j = 0; j < circles.size(); ++j)
+    {
+      if (circles[j].contains(x, y))
+      {
+        inAny = true;
+      }
+      else
+      {
+        inAll = false;
+      }
+    }
+
+    if (inAny)
+    {
+      ++countInOneCircle;
+    }
+
+    if (inAll)
+    {
+      ++countInAllCircles;
+    }
+  }
+
+  return std::make_pair(countInOneCircle, countInAllCircles);
 }
