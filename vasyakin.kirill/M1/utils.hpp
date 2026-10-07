@@ -30,13 +30,13 @@ namespace vasyakin
 
   Rectangle findRectangleRange(const std::vector< vasyakin::Circle >& circles);
 
-  int parseArgument(const char* arg, const std::string& param);
+  long long parseArgument(const char* arg, const std::string& param);
 
-  std::pair< int, int > calc(int tries, int seed,
-    double minX, double maxX, double minY, double maxY, const std::vector< vasyakin::Circle >& circles);
+  std::pair< long long, long long > calc(long long tries, long long seed, double minX, double maxX, double minY,
+      double maxY, const std::vector< vasyakin::Circle >& circles);
 
-  std::pair< double, double > area(int threads, int tries, int seed,
-    const std::vector< vasyakin::Circle >& circles, Rectangle rect);
+  std::pair< double, double > area(long long threads, long long tries, long long seed,
+      const std::vector< vasyakin::Circle >& circles, Rectangle rect);
 }
 
 #endif

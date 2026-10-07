@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  int threads = 0, tries = 0, seed = 0;
+  long long threads = 0, tries = 0, seed = 0;
 
   try
   {
@@ -24,12 +24,12 @@ int main(int argc, char** argv)
       seed = vasyakin::parseArgument(argv[3], "seed");
     }
   }
-  catch (std::invalid_argument& e)
+  catch (const std::invalid_argument& e)
   {
     std::cerr << e.what() << '\n';
     return 1;
   }
-  catch(std::out_of_range& e)
+  catch (const std::out_of_range& e)
   {
     std::cerr << "Number is out of range: " << e.what() << '\n';
     return 1;
@@ -40,6 +40,8 @@ int main(int argc, char** argv)
     std::cerr << "threads, tries and seed must be positive" << '\n';
     return 1;
   }
+
+  threads = threads > 0 ? threads : 1;
 
   std::vector< vasyakin::Circle > circles;
 
@@ -73,7 +75,7 @@ int main(int argc, char** argv)
     std::cout << std::setprecision(std::numeric_limits< double >::max_digits10);
     std::cout << areaUnion << " " << areaIntersect << '\n';
   }
-  catch (std::invalid_argument& e)
+  catch (const std::invalid_argument& e)
   {
     std::cerr << e.what() << '\n';
     return 1;

@@ -39,10 +39,7 @@ double vasyakin::Circle::getMaxY() const noexcept
 
 vasyakin::Rectangle vasyakin::findRectangleRange(const std::vector< vasyakin::Circle >& circles)
 {
-  vasyakin::Rectangle rect =
-  {
-    circles[0].getMinX(), circles[0].getMinY(), circles[0].getMaxX(), circles[0].getMaxY()
-  };
+  vasyakin::Rectangle rect = {circles[0].getMinX(), circles[0].getMinY(), circles[0].getMaxX(), circles[0].getMaxY()};
 
   for (size_t i = 1; i < circles.size(); ++i)
   {
@@ -55,10 +52,10 @@ vasyakin::Rectangle vasyakin::findRectangleRange(const std::vector< vasyakin::Ci
   return rect;
 }
 
-int vasyakin::parseArgument(const char* arg, const std::string& param)
+long long vasyakin::parseArgument(const char* arg, const std::string& param)
 {
   size_t pos = 0;
-  int value = std::stoi(arg, &pos);
+  long long value = std::stoi(arg, &pos);
 
   if (pos != std::string(arg).length())
   {
@@ -68,17 +65,17 @@ int vasyakin::parseArgument(const char* arg, const std::string& param)
   return value;
 }
 
-std::pair< int, int > vasyakin::calc(int tries, int seed,
-  double minX, double maxX, double minY, double maxY, const std::vector< vasyakin::Circle >& circles)
+std::pair< long long, long long > vasyakin::calc(long long tries, long long seed, double minX, double maxX, double minY,
+    double maxY, const std::vector< vasyakin::Circle >& circles)
 {
-  int countInOneCircle = 0;
-  int countInAllCircles = 0;
+  long long countInOneCircle = 0;
+  long long countInAllCircles = 0;
 
-  std::mt19937 engine(seed);
+  std::default_random_engine engine(static_cast< unsigned int >(seed));
   std::uniform_real_distribution< double > dist_x(minX, maxX);
   std::uniform_real_distribution< double > dist_y(minY, maxY);
 
-  for (int i = 0; i < tries; ++i)
+  for (long long i = 0; i < tries; ++i)
   {
     double x = dist_x(engine);
     double y = dist_y(engine);
@@ -112,34 +109,29 @@ std::pair< int, int > vasyakin::calc(int tries, int seed,
   return std::make_pair(countInOneCircle, countInAllCircles);
 }
 
-std::pair< double, double > vasyakin::area(int threads, int tries, int seed,
-  const std::vector< vasyakin::Circle >& circles, vasyakin::Rectangle rect)
+std::pair< double, double > vasyakin::area(long long threads, long long tries, long long seed,
+    const std::vector< vasyakin::Circle >& circles, vasyakin::Rectangle rect)
 {
-  if (threads == 0)
-  {
-    throw std::invalid_argument("threads must be positive");
-  }
-
   int local_tries = tries;
 
-  int chunk = tries / threads;
-  int remainder = tries % threads;
+  long long chunk = tries / threads;
+  long long remainder = tries % threads;
 
-  std::vector< std::pair< int, int > > results(threads);
+  std::vector< std::pair< long long, long long > > results(threads);
 
   std::vector< std::thread > thread_pool;
   thread_pool.reserve(threads);
 
-  for (int j = 0; j < threads; ++j)
+  for (long long j = 0; j < threads; ++j)
   {
-    int local_seed = seed + j;
+    long long local_seed = seed + j;
     local_tries = (j == threads - 1) ? chunk + remainder : chunk;
 
-    thread_pool.emplace_back([&, j, local_tries, local_seed]()
-    {
-      results[j] = vasyakin::calc(local_tries, local_seed,
-        rect.minX, rect.maxX, rect.minY, rect.maxY, circles);
-    });
+    thread_pool.emplace_back(
+        [&, j, local_tries, local_seed]()
+        {
+          results[j] = vasyakin::calc(local_tries, local_seed, rect.minX, rect.maxX, rect.minY, rect.maxY, circles);
+        });
   }
 
   for (size_t i = 0; i < thread_pool.size(); ++i)
@@ -147,8 +139,8 @@ std::pair< double, double > vasyakin::area(int threads, int tries, int seed,
     thread_pool[i].join();
   }
 
-  int totalUnionHits = 0;
-  int totalIntersectHits = 0;
+  long long totalUnionHits = 0;
+  long long totalIntersectHits = 0;
 
   for (size_t i = 0; i < results.size(); ++i)
   {
@@ -158,8 +150,8 @@ std::pair< double, double > vasyakin::area(int threads, int tries, int seed,
 
   double rectArea = (rect.maxX - rect.minX) * (rect.maxY - rect.minY);
 
-  double areaUnion = static_cast< double >(totalUnionHits) / tries * rectArea;
-  double areaIntersect = static_cast< double >(totalIntersectHits) / tries * rectArea;
+  double areaUnion = static_cast< double >(totalUnionHits) / static_cast< double >(tries) * rectArea;
+  double areaIntersect = static_cast< double >(totalIntersectHits) / static_cast< double >(tries) * rectArea;
 
   return std::make_pair(areaUnion, areaIntersect);
 }
