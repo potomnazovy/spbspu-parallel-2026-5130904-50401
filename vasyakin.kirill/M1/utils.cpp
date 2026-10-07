@@ -14,7 +14,7 @@ vasyakin::Circle::Circle(double radius, double x, double y) noexcept:
 
 bool vasyakin::Circle::contains(double dx, double dy) const noexcept
 {
-  return (dx - x_) * (dx - x_) + (dy - y_) * (dy - y_ ) <= radius_ * radius_;
+  return (dx - x_) * (dx - x_) + (dy - y_) * (dy - y_) <= radius_ * radius_;
 }
 
 double vasyakin::Circle::getMinX() const noexcept

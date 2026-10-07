@@ -4,7 +4,6 @@
 #include <iomanip>
 #include <limits>
 
-
 int main(int argc, char** argv)
 {
   if (argc < 3 || argc > 4)
