@@ -37,7 +37,7 @@ double vasyakin::Circle::getMaxY() const noexcept
   return y_ + radius_;
 }
 
-vasyakin::Rectangle findRectangleRange(const std::vector< vasyakin::Circle >& circles)
+vasyakin::Rectangle vasyakin::findRectangleRange(const std::vector< vasyakin::Circle >& circles)
 {
   vasyakin::Rectangle rect =
   {
@@ -55,7 +55,7 @@ vasyakin::Rectangle findRectangleRange(const std::vector< vasyakin::Circle >& ci
   return rect;
 }
 
-int parseArgument(const char* arg, const std::string& param)
+int vasyakin::parseArgument(const char* arg, const std::string& param)
 {
   size_t pos = 0;
   int value = std::stoi(arg, &pos);
@@ -68,7 +68,7 @@ int parseArgument(const char* arg, const std::string& param)
   return value;
 }
 
-std::pair< int, int > calc(int tries, int seed,
+std::pair< int, int > vasyakin::calc(int tries, int seed,
   double minX, double maxX, double minY, double maxY, const std::vector< vasyakin::Circle >& circles)
 {
   int countInOneCircle = 0;
@@ -112,7 +112,7 @@ std::pair< int, int > calc(int tries, int seed,
   return std::make_pair(countInOneCircle, countInAllCircles);
 }
 
-std::pair< double, double > area(int threads, int tries, int seed,
+std::pair< double, double > vasyakin::area(int threads, int tries, int seed,
   const std::vector< vasyakin::Circle >& circles, vasyakin::Rectangle rect)
 {
   if (threads == 0)

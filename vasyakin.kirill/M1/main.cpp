@@ -1,4 +1,4 @@
-#include "utils.cpp"
+#include "utils.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -63,7 +63,6 @@ int main(int argc, char** argv)
   }
 
   vasyakin::Rectangle rect = vasyakin::findRectangleRange(circles);
-
 
   try
   {
