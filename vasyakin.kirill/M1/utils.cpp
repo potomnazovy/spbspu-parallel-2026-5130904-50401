@@ -4,6 +4,7 @@
 #include <utility>
 #include <random>
 #include <thread>
+#include <algorithm>
 
 vasyakin::Circle::Circle(double radius, double x, double y) noexcept:
   radius_(radius),
