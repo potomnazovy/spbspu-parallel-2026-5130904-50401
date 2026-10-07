@@ -30,3 +30,21 @@ double vasyakin::Circle::getMaxY() const noexcept
 {
   return y_ + radius_;
 }
+
+vasyakin::Rectangle findRectangleRange(const std::vector< vasyakin::Circle >& circles)
+{
+  vasyakin::Rectangle rect =
+  {
+    circles[0].getMinX(), circles[0].getMinY(), circles[0].getMaxX(), circles[0].getMaxY()
+  };
+
+  for (size_t i = 1; i < circles.size(); ++i)
+  {
+    rect.minX = std::min(rect.minX, circles[i].getMinX());
+    rect.minY = std::min(rect.minY, circles[i].getMinY());
+    rect.maxX = std::max(rect.maxX, circles[i].getMaxX());
+    rect.maxY = std::max(rect.maxY, circles[i].getMaxY());
+  }
+
+  return rect;
+}
