@@ -43,4 +43,45 @@ int main(int argc, char** argv)
     std::cerr << "threads, tries and seed must be positive" << '\n';
     return 1;
   }
+
+  std::vector< vasyakin::Circle > circles;
+
+  int r = 0, dopTaskParam = 0, x = 0, y = 0;
+  while (std::cin >> r >> dopTaskParam >> x >> y)
+  {
+    circles.emplace_back(r, x, y);
+  }
+
+  if (!std::cin.eof())
+  {
+    std::cerr << "Error: cannot parse figure parameters" << '\n';
+    return 1;
+  }
+
+  if (circles.empty())
+  {
+    std::cerr << "Vector of circles is empty" << '\n';
+    return 1;
+  }
+
+  vasyakin::Rectangle rect = vasyakin::findRectangleRange(circles);
+
+
+  try
+  {
+    auto pair = vasyakin::area(threads, tries, seed, circles, rect);
+
+    double areaUnion = pair.first;
+    double areaIntersect = pair.second;
+
+    std::cout << std::setprecision(std::numeric_limits< double >::max_digits10);
+    std::cout << areaUnion << " " << areaIntersect << '\n';
+  }
+  catch (std::invalid_argument& e)
+  {
+    std::cerr << e.what() << '\n';
+    return 1;
+  }
+
+  return 0;
 }
