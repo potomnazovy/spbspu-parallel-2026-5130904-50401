@@ -83,7 +83,12 @@ int main(int argc, char** argv)
     long long actual_threads = threads;
 
     const unsigned int hw_cores = std::thread::hardware_concurrency();
-    const long long max_threads = (hw_cores == 0) ? 4 : hw_cores;
+    long long max_threads = (hw_cores == 0) ? 12 : hw_cores;
+
+    if (max_threads > 12)
+    {
+      max_threads = 12;
+    }
 
     if (actual_threads > max_threads)
     {
