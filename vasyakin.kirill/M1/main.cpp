@@ -3,6 +3,9 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
+#include <vector>
+#include <stdexcept>
+#include <thread>
 
 int main(int argc, char** argv)
 {
@@ -29,7 +32,7 @@ int main(int argc, char** argv)
     threads = vasyakin::parseArgument(argv[threads_idx], "threads");
     tries = vasyakin::parseArgument(argv[tries_idx], "tries");
 
-    if (argc == 4)
+    if (argc == max_args)
     {
       seed = vasyakin::parseArgument(argv[seed_idx], "seed");
     }
@@ -55,8 +58,8 @@ int main(int argc, char** argv)
 
   std::vector< vasyakin::Circle > circles;
 
-  int r = 0, dopTaskParam = 0, x = 0, y = 0;
-  while (std::cin >> r >> dopTaskParam >> x >> y)
+  int r = 0, dop_task_param = 0, x = 0, y = 0;
+  while (std::cin >> r >> dop_task_param >> x >> y)
   {
     circles.emplace_back(r, x, y);
   }
@@ -73,17 +76,32 @@ int main(int argc, char** argv)
     return bad_exit;
   }
 
-  vasyakin::Rectangle rect = vasyakin::findRectangleRange(circles);
+  const vasyakin::Rectangle rect = vasyakin::findRectangleRange(circles);
 
   try
   {
-    auto pair = vasyakin::area(threads, tries, seed, circles, rect);
+    long long actual_threads = threads;
 
-    double areaUnion = pair.first;
-    double areaIntersect = pair.second;
+    const unsigned int hw_cores = std::thread::hardware_concurrency();
+    const long long max_threads = (hw_cores == 0) ? 4 : hw_cores;
+
+    if (actual_threads > max_threads)
+    {
+      actual_threads = max_threads;
+    }
+
+    if (actual_threads > tries)
+    {
+      actual_threads = tries;
+    }
+
+    const auto pair = vasyakin::area(threads, tries, seed, circles, rect);
+
+    const double area_union = pair.first;
+    const double area_intersect = pair.second;
 
     std::cout << std::setprecision(std::numeric_limits< double >::max_digits10);
-    std::cout << areaUnion << " " << areaIntersect << '\n';
+    std::cout << area_union << " " << area_intersect << '\n';
   }
   catch (const std::invalid_argument& e)
   {

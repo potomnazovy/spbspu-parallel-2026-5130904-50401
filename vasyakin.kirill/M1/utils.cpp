@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <utility>
 
 vasyakin::Circle::Circle(double radius, double x, double y) noexcept:
   radius_(radius),
@@ -67,8 +68,8 @@ long long vasyakin::parseArgument(const char* arg, const std::string& param)
   return value;
 }
 
-std::pair< long long, long long > vasyakin::calc(long long tries, long long seed, double min_x, double max_x, double min_y,
-    double max_y, const std::vector< vasyakin::Circle >& circles)
+std::pair< long long, long long > vasyakin::calc(long long tries, long long seed, double min_x, double max_x,
+    double min_y, double max_y, const std::vector< vasyakin::Circle >& circles)
 {
   long long count_in_one_circle = 0;
   long long count_in_all_circles = 0;
