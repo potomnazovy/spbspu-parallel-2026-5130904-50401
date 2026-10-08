@@ -95,7 +95,7 @@ int main(int argc, char** argv)
       actual_threads = tries;
     }
 
-    const auto pair = vasyakin::area(threads, tries, seed, circles, rect);
+    const auto pair = vasyakin::area(actual_threads, tries, seed, circles, rect);
 
     const double area_union = pair.first;
     const double area_intersect = pair.second;
