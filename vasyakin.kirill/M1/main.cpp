@@ -5,7 +5,7 @@
 #include <limits>
 #include <vector>
 #include <stdexcept>
-#include <thread>
+#include <algorithm>
 
 int main(int argc, char** argv)
 {
