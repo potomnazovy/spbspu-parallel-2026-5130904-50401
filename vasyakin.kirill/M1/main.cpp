@@ -80,25 +80,8 @@ int main(int argc, char** argv)
 
   try
   {
-    long long actual_threads = threads;
-
-    const unsigned int hw_cores = std::thread::hardware_concurrency();
-    long long max_threads = (hw_cores == 0) ? 12 : hw_cores;
-
-    if (max_threads > 12)
-    {
-      max_threads = 12;
-    }
-
-    if (actual_threads > max_threads)
-    {
-      actual_threads = max_threads;
-    }
-
-    if (actual_threads > tries)
-    {
-      actual_threads = tries;
-    }
+    constexpr long long max_allowed_threads = 1000;
+    const long long actual_threads = std::min(threads, max_allowed_threads);
 
     const auto pair = vasyakin::area(actual_threads, tries, seed, circles, rect);
 
