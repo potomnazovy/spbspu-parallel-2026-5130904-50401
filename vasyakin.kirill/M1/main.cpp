@@ -6,39 +6,49 @@
 
 int main(int argc, char** argv)
 {
-  if (argc < 3 || argc > 4)
+  constexpr int min_args = 3;
+  constexpr int max_args = 4;
+
+  constexpr int threads_idx = 1;
+  constexpr int tries_idx = 2;
+  constexpr int seed_idx = 3;
+
+  constexpr int bad_exit = 1;
+  constexpr int good_exit = 0;
+
+  if (argc < min_args || argc > max_args)
   {
     std::cerr << "Too much" << '\n';
-    return 1;
+    return bad_exit;
   }
 
   long long threads = 0, tries = 0, seed = 0;
 
   try
   {
-    threads = vasyakin::parseArgument(argv[1], "threads");
-    tries = vasyakin::parseArgument(argv[2], "tries");
+    threads = vasyakin::parseArgument(argv[threads_idx], "threads");
+    tries = vasyakin::parseArgument(argv[tries_idx], "tries");
 
     if (argc == 4)
     {
-      seed = vasyakin::parseArgument(argv[3], "seed");
+      seed = vasyakin::parseArgument(argv[seed_idx], "seed");
     }
   }
   catch (const std::invalid_argument& e)
   {
     std::cerr << e.what() << '\n';
-    return 1;
+    return bad_exit;
   }
   catch (const std::out_of_range& e)
   {
     std::cerr << "Number is out of range: " << e.what() << '\n';
-    return 1;
+    return bad_exit;
   }
 
   if (threads < 0 || tries <= 0 || seed < 0)
   {
     std::cerr << "threads, tries and seed must be positive" << '\n';
-    return 1;
+    return bad_exit;
   }
 
   threads = threads > 0 ? threads : 1;
@@ -54,13 +64,13 @@ int main(int argc, char** argv)
   if (!std::cin.eof())
   {
     std::cerr << "Error: cannot parse figure parameters" << '\n';
-    return 1;
+    return bad_exit;
   }
 
   if (circles.empty())
   {
     std::cerr << "Vector of circles is empty" << '\n';
-    return 1;
+    return bad_exit;
   }
 
   vasyakin::Rectangle rect = vasyakin::findRectangleRange(circles);
@@ -78,8 +88,8 @@ int main(int argc, char** argv)
   catch (const std::invalid_argument& e)
   {
     std::cerr << e.what() << '\n';
-    return 1;
+    return bad_exit;
   }
 
-  return 0;
+  return good_exit;
 }

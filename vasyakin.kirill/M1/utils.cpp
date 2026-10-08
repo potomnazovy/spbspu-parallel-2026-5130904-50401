@@ -1,10 +1,12 @@
 #include "utils.hpp"
 
 #include <stdexcept>
-#include <utility>
 #include <random>
 #include <thread>
 #include <algorithm>
+#include <cstddef>
+#include <vector>
+#include <string>
 
 vasyakin::Circle::Circle(double radius, double x, double y) noexcept:
   radius_(radius),
@@ -43,10 +45,10 @@ vasyakin::Rectangle vasyakin::findRectangleRange(const std::vector< vasyakin::Ci
 
   for (size_t i = 1; i < circles.size(); ++i)
   {
-    rect.minX = std::min(rect.minX, circles[i].getMinX());
-    rect.minY = std::min(rect.minY, circles[i].getMinY());
-    rect.maxX = std::max(rect.maxX, circles[i].getMaxX());
-    rect.maxY = std::max(rect.maxY, circles[i].getMaxY());
+    rect.min_x = std::min(rect.min_x, circles[i].getMinX());
+    rect.min_y = std::min(rect.min_y, circles[i].getMinY());
+    rect.max_x = std::max(rect.max_x, circles[i].getMaxX());
+    rect.max_y = std::max(rect.max_y, circles[i].getMaxY());
   }
 
   return rect;
@@ -55,7 +57,7 @@ vasyakin::Rectangle vasyakin::findRectangleRange(const std::vector< vasyakin::Ci
 long long vasyakin::parseArgument(const char* arg, const std::string& param)
 {
   size_t pos = 0;
-  long long value = std::stoi(arg, &pos);
+  const long long value = std::stoll(arg, &pos);
 
   if (pos != std::string(arg).length())
   {
@@ -65,48 +67,48 @@ long long vasyakin::parseArgument(const char* arg, const std::string& param)
   return value;
 }
 
-std::pair< long long, long long > vasyakin::calc(long long tries, long long seed, double minX, double maxX, double minY,
-    double maxY, const std::vector< vasyakin::Circle >& circles)
+std::pair< long long, long long > vasyakin::calc(long long tries, long long seed, double min_x, double max_x, double min_y,
+    double max_y, const std::vector< vasyakin::Circle >& circles)
 {
-  long long countInOneCircle = 0;
-  long long countInAllCircles = 0;
+  long long count_in_one_circle = 0;
+  long long count_in_all_circles = 0;
 
   std::default_random_engine engine(static_cast< unsigned int >(seed));
-  std::uniform_real_distribution< double > dist_x(minX, maxX);
-  std::uniform_real_distribution< double > dist_y(minY, maxY);
+  std::uniform_real_distribution< double > dist_x(min_x, max_x);
+  std::uniform_real_distribution< double > dist_y(min_y, max_y);
 
   for (long long i = 0; i < tries; ++i)
   {
-    double x = dist_x(engine);
-    double y = dist_y(engine);
+    const double x = dist_x(engine);
+    const double y = dist_y(engine);
 
-    bool inAny = false;
-    bool inAll = true;
+    bool in_any = false;
+    bool in_all = true;
 
     for (size_t j = 0; j < circles.size(); ++j)
     {
       if (circles[j].contains(x, y))
       {
-        inAny = true;
+        in_any = true;
       }
       else
       {
-        inAll = false;
+        in_all = false;
       }
     }
 
-    if (inAny)
+    if (in_any)
     {
-      ++countInOneCircle;
+      ++count_in_one_circle;
     }
 
-    if (inAll)
+    if (in_all)
     {
-      ++countInAllCircles;
+      ++count_in_all_circles;
     }
   }
 
-  return std::make_pair(countInOneCircle, countInAllCircles);
+  return std::make_pair(count_in_one_circle, count_in_all_circles);
 }
 
 std::pair< double, double > vasyakin::area(long long threads, long long tries, long long seed,
@@ -114,8 +116,8 @@ std::pair< double, double > vasyakin::area(long long threads, long long tries, l
 {
   int local_tries = tries;
 
-  long long chunk = tries / threads;
-  long long remainder = tries % threads;
+  const long long chunk = tries / threads;
+  const long long remainder = tries % threads;
 
   std::vector< std::pair< long long, long long > > results(threads);
 
@@ -124,13 +126,13 @@ std::pair< double, double > vasyakin::area(long long threads, long long tries, l
 
   for (long long j = 0; j < threads; ++j)
   {
-    long long local_seed = seed + j;
+    const long long local_seed = seed + j;
     local_tries = (j == threads - 1) ? chunk + remainder : chunk;
 
     thread_pool.emplace_back(
         [&, j, local_tries, local_seed]()
         {
-          results[j] = vasyakin::calc(local_tries, local_seed, rect.minX, rect.maxX, rect.minY, rect.maxY, circles);
+          results[j] = vasyakin::calc(local_tries, local_seed, rect.min_x, rect.max_x, rect.min_y, rect.max_y, circles);
         });
   }
 
@@ -139,19 +141,19 @@ std::pair< double, double > vasyakin::area(long long threads, long long tries, l
     thread_pool[i].join();
   }
 
-  long long totalUnionHits = 0;
-  long long totalIntersectHits = 0;
+  long long total_union_hits = 0;
+  long long total_intersect_hits = 0;
 
   for (size_t i = 0; i < results.size(); ++i)
   {
-    totalUnionHits += results[i].first;
-    totalIntersectHits += results[i].second;
+    total_union_hits += results[i].first;
+    total_intersect_hits += results[i].second;
   }
 
-  double rectArea = (rect.maxX - rect.minX) * (rect.maxY - rect.minY);
+  const double rect_area = (rect.max_x - rect.min_x) * (rect.max_y - rect.min_y);
 
-  double areaUnion = static_cast< double >(totalUnionHits) / static_cast< double >(tries) * rectArea;
-  double areaIntersect = static_cast< double >(totalIntersectHits) / static_cast< double >(tries) * rectArea;
+  const double area_union = static_cast< double >(total_union_hits) / static_cast< double >(tries) * rect_area;
+  const double area_intersect = static_cast< double >(total_intersect_hits) / static_cast< double >(tries) * rect_area;
 
-  return std::make_pair(areaUnion, areaIntersect);
+  return std::make_pair(area_union, area_intersect);
 }

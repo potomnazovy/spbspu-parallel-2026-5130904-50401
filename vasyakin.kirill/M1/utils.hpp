@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 
 namespace vasyakin
 {
@@ -25,15 +26,15 @@ namespace vasyakin
 
   struct Rectangle
   {
-    double minX, minY, maxX, maxY;
+    double min_x, min_y, max_x, max_y;
   };
 
   Rectangle findRectangleRange(const std::vector< vasyakin::Circle >& circles);
 
   long long parseArgument(const char* arg, const std::string& param);
 
-  std::pair< long long, long long > calc(long long tries, long long seed, double minX, double maxX, double minY,
-      double maxY, const std::vector< vasyakin::Circle >& circles);
+  std::pair< long long, long long > calc(long long tries, long long seed, double min_x, double max_x, double min_y,
+      double max_y, const std::vector< vasyakin::Circle >& circles);
 
   std::pair< double, double > area(long long threads, long long tries, long long seed,
       const std::vector< vasyakin::Circle >& circles, Rectangle rect);
