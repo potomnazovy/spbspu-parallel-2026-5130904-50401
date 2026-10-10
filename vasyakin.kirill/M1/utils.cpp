@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <memory>
 
 vasyakin::Circle::Circle(double radius, double x, double y) noexcept:
   radius_(radius),
@@ -49,8 +50,8 @@ vasyakin::Ellipse::Ellipse(double a, double b, double x, double y) noexcept:
 
 bool vasyakin::Ellipse::contains(double dx, double dy) const noexcept
 {
-  double dx_norm = (dx - x_) / a_;
-  double dy_norm = (dy - y_) / b_;
+  const double dx_norm = (dx - x_) / a_;
+  const double dy_norm = (dy - y_) / b_;
 
   return dx_norm * dx_norm + dy_norm * dy_norm <= 1.0;
 }
