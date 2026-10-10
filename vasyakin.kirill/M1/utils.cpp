@@ -40,16 +40,52 @@ double vasyakin::Circle::getMaxY() const noexcept
   return y_ + radius_;
 }
 
-vasyakin::Rectangle vasyakin::findRectangleRange(const std::vector< vasyakin::Circle >& circles)
-{
-  vasyakin::Rectangle rect = {circles[0].getMinX(), circles[0].getMinY(), circles[0].getMaxX(), circles[0].getMaxY()};
+vasyakin::Ellipse::Ellipse(double a, double b, double x, double y) noexcept:
+  a_(a),
+  b_(b),
+  x_(x),
+  y_(y)
+{}
 
-  for (size_t i = 1; i < circles.size(); ++i)
+bool vasyakin::Ellipse::contains(double dx, double dy) const noexcept
+{
+  double dx_norm = (dx - x_) / a_;
+  double dy_norm = (dy - y_) / b_;
+
+  return dx_norm * dx_norm + dy_norm * dy_norm <= 1.0;
+}
+
+double vasyakin::Ellipse::getMinX() const noexcept
+{
+  return x_ - a_;
+}
+
+double vasyakin::Ellipse::getMinY() const noexcept
+{
+  return y_ - b_;
+}
+
+double vasyakin::Ellipse::getMaxX() const noexcept
+{
+  return x_ + a_;
+}
+
+double vasyakin::Ellipse::getMaxY() const noexcept
+{
+  return y_ + b_;
+}
+
+vasyakin::rectangle_t vasyakin::findRectangleRange(const std::vector< std::unique_ptr< vasyakin::Figure > >& figures)
+{
+  vasyakin::rectangle_t rect
+      = {figures[0]->getMinX(), figures[0]->getMinY(), figures[0]->getMaxX(), figures[0]->getMaxY()};
+
+  for (size_t i = 1; i < figures.size(); ++i)
   {
-    rect.min_x = std::min(rect.min_x, circles[i].getMinX());
-    rect.min_y = std::min(rect.min_y, circles[i].getMinY());
-    rect.max_x = std::max(rect.max_x, circles[i].getMaxX());
-    rect.max_y = std::max(rect.max_y, circles[i].getMaxY());
+    rect.min_x = std::min(rect.min_x, figures[i]->getMinX());
+    rect.min_y = std::min(rect.min_y, figures[i]->getMinY());
+    rect.max_x = std::max(rect.max_x, figures[i]->getMaxX());
+    rect.max_y = std::max(rect.max_y, figures[i]->getMaxY());
   }
 
   return rect;
@@ -69,7 +105,7 @@ long long vasyakin::parseArgument(const char* arg, const std::string& param)
 }
 
 std::pair< long long, long long > vasyakin::calc(long long tries, long long seed, double min_x, double max_x,
-    double min_y, double max_y, const std::vector< vasyakin::Circle >& circles)
+    double min_y, double max_y, const std::vector< std::unique_ptr< vasyakin::Figure > >& figures)
 {
   long long count_in_one_circle = 0;
   long long count_in_all_circles = 0;
@@ -86,9 +122,9 @@ std::pair< long long, long long > vasyakin::calc(long long tries, long long seed
     bool in_any = false;
     bool in_all = true;
 
-    for (size_t j = 0; j < circles.size(); ++j)
+    for (size_t j = 0; j < figures.size(); ++j)
     {
-      if (circles[j].contains(x, y))
+      if (figures[j]->contains(x, y))
       {
         in_any = true;
       }
@@ -113,9 +149,9 @@ std::pair< long long, long long > vasyakin::calc(long long tries, long long seed
 }
 
 std::pair< double, double > vasyakin::area(long long threads, long long tries, long long seed,
-    const std::vector< vasyakin::Circle >& circles, vasyakin::Rectangle rect)
+    const std::vector< std::unique_ptr< vasyakin::Figure > >& figures, vasyakin::rectangle_t rect)
 {
-  int local_tries = tries;
+  long long local_tries = tries;
 
   const long long chunk = tries / threads;
   const long long remainder = tries % threads;
@@ -133,7 +169,7 @@ std::pair< double, double > vasyakin::area(long long threads, long long tries, l
     thread_pool.emplace_back(
         [&, j, local_tries, local_seed]()
         {
-          results[j] = vasyakin::calc(local_tries, local_seed, rect.min_x, rect.max_x, rect.min_y, rect.max_y, circles);
+          results[j] = vasyakin::calc(local_tries, local_seed, rect.min_x, rect.max_x, rect.min_y, rect.max_y, figures);
         });
   }
 

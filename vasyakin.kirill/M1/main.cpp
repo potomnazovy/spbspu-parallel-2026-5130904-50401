@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <algorithm>
+#include <memory>
 
 int main(int argc, char** argv)
 {
@@ -56,12 +57,19 @@ int main(int argc, char** argv)
 
   threads = threads > 0 ? threads : 1;
 
-  std::vector< vasyakin::Circle > circles;
+  std::vector< std::unique_ptr< vasyakin::Figure > > figures;
 
   int r = 0, dop_task_param = 0, x = 0, y = 0;
   while (std::cin >> r >> dop_task_param >> x >> y)
   {
-    circles.emplace_back(r, x, y);
+    if (dop_task_param == 0)
+    {
+      figures.push_back(std::make_unique< vasyakin::Circle >(r, x, y));
+    }
+    else
+    {
+      figures.push_back(std::make_unique< vasyakin::Ellipse >(r, dop_task_param, x, y));
+    }
   }
 
   if (!std::cin.eof())
@@ -70,20 +78,20 @@ int main(int argc, char** argv)
     return bad_exit;
   }
 
-  if (circles.empty())
+  if (figures.empty())
   {
-    std::cerr << "Vector of circles is empty" << '\n';
+    std::cerr << "Vector of figures is empty" << '\n';
     return bad_exit;
   }
 
-  const vasyakin::Rectangle rect = vasyakin::findRectangleRange(circles);
+  const vasyakin::rectangle_t rect = vasyakin::findRectangleRange(figures);
 
   try
   {
     constexpr long long max_allowed_threads = 1000;
     const long long actual_threads = std::min(threads, max_allowed_threads);
 
-    const auto pair = vasyakin::area(actual_threads, tries, seed, circles, rect);
+    const auto pair = vasyakin::area(actual_threads, tries, seed, figures, rect);
 
     const double area_union = pair.first;
     const double area_intersect = pair.second;
